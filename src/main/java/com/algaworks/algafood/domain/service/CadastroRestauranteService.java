@@ -2,6 +2,8 @@ package com.algaworks.algafood.domain.service;
 
 import java.util.List;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -24,17 +26,19 @@ public class CadastroRestauranteService {
 	private CozinhaRepository cozinhaRepository;
 
 	public List<Restaurante> listar() {
-		return restauranteRepository.listar();
+		return restauranteRepository.findAll();
 
 	}
 
 	public Restaurante buscar(Long id) {
-		return restauranteRepository.buscar(id);
+		return restauranteRepository.findById(id).orElseThrow(() -> new EntidadeNaoEncontradaException(
+				String.format("Não existe cadastro de cozinha com código %d", id)));
 	}
 
+	@Transactional
 	public void excluir(Long id) {
 		try {
-			restauranteRepository.remover(id);
+			restauranteRepository.deleteById(id);
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(
 					String.format("Cozinha de código %d não pode ser removida, pois está em uso", id));
@@ -44,13 +48,14 @@ public class CadastroRestauranteService {
 		}
 	}
 
+	@Transactional
 	public Restaurante salvar(Restaurante restaurante) {
 		long cozinhaId = restaurante.getCozinha().getId();
 		Cozinha cozinha = cozinhaRepository.findById(cozinhaId).orElseThrow(() -> new EntidadeNaoEncontradaException(
 				String.format("Não existe cadastro de cozinha com código %d", cozinhaId)));
 
 		restaurante.setCozinha(cozinha);
-		return restauranteRepository.salvar(restaurante);
+		return restauranteRepository.save(restaurante);
 
 	}
 }

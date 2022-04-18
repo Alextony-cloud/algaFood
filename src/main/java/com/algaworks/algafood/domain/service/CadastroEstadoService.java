@@ -19,12 +19,12 @@ public class CadastroEstadoService {
 	private EstadoRepository estadoRepository;
 
 	public Estado salvar(Estado estado) {
-		return estadoRepository.salvar(estado);
+		return estadoRepository.save(estado);
 	}
 
 	public void excluir(Long id) {
 		try {
-			estadoRepository.remover(id);
+			estadoRepository.deleteById(id);
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(
 					String.format("estado de código %d não pode ser removida, pois está em uso", id));
@@ -35,11 +35,11 @@ public class CadastroEstadoService {
 	}
 
 	public Estado buscar(Long id) {
-		return estadoRepository.buscar(id);
+		return estadoRepository.findById(id).orElseThrow(()-> new EntidadeNaoEncontradaException(String.format("Não existe cadastro de cozinha com código %d", id)));
 	}
 
 	public List<Estado> listar() {
-		return estadoRepository.listar();
+		return estadoRepository.findAll();
 	}
 
 	

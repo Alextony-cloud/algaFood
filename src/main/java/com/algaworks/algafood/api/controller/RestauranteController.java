@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.algaworks.algafood.domain.exception.EntidadeEmUsoException;
 import com.algaworks.algafood.domain.exception.EntidadeNaoEncontradaException;
 import com.algaworks.algafood.domain.model.Restaurante;
-import com.algaworks.algafood.domain.repository.RestauranteRepository;
 import com.algaworks.algafood.domain.service.CadastroRestauranteService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -63,12 +62,14 @@ public class RestauranteController {
 	public ResponseEntity<?> atualizar(@PathVariable Long id, @RequestBody Restaurante restaurante) {
 
 		try {
+			
 			Restaurante restauranteAtual = cadastroRestauranteService.buscar(id);
 			if (restauranteAtual != null) {
-
 				BeanUtils.copyProperties(restaurante, restauranteAtual, "id");
-				restauranteAtual = cadastroRestauranteService.salvar(restauranteAtual);
-				return ResponseEntity.ok(restauranteAtual);
+			Restaurante	restauranteSalva = cadastroRestauranteService.salvar(restauranteAtual);
+				return ResponseEntity.ok(restauranteSalva);
+
+			
 			}
 			return ResponseEntity.notFound().build();
 

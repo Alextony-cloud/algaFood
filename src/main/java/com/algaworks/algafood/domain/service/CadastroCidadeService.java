@@ -25,29 +25,26 @@ public class CadastroCidadeService {
 
 	public List<Cidade> listar() {
 
-		return cidadeRepository.listar();
+		return cidadeRepository.findAll();
 	}
 
 	public Cidade buscar(Long id) {
-		return cidadeRepository.buscar(id);
+		return cidadeRepository.findById(id).orElseThrow(()-> new EntidadeNaoEncontradaException(String.format("Não existe cadastro de cozinha com código %d", id)));
 	}
 
 	public Cidade salvar(Cidade cidade) {
 		long estadoId = cidade.getEstado().getId();
-		Estado estado = estadoRepository.buscar(estadoId);
+		Estado estado = estadoRepository.findById(estadoId).orElseThrow(() -> new EntidadeNaoEncontradaException(
+			    String.format("Não existe cadastro de estado com código %d", estadoId)));
 
-		if (estado == null) {
-			throw new EntidadeNaoEncontradaException(
-					String.format("Não existe cadastro de cozinha com código %d", estadoId));
-		}
 		cidade.setEstado(estado);
-		return cidadeRepository.salvar(cidade);
+		return cidadeRepository.save(cidade);
 
 	}
 	
 	public void excluir(Long id) {
 		try {
-			cidadeRepository.remover(id);
+			cidadeRepository.deleteById(id);
 		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException(
 					String.format("Cidade de código %d não pode ser removida, pois está em uso", id));
